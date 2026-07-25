@@ -1,0 +1,15 @@
+{
+  "servers": {
+    "freshdesk": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "--env-file",
+        "${workspaceFolder}/.env",
+        "freshdesk-mcp:latest"
+      ]
+    }
+  }
+}

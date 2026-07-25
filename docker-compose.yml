@@ -1,0 +1,14 @@
+services:
+  freshdesk-mcp:
+    build: .
+    image: ghcr.io/jelmervdm/freshdesk-mcp:main
+    container_name: freshdesk-mcp
+    stdin_open: true
+    environment:
+      - FRESHDESK_DOMAIN=${FRESHDESK_DOMAIN}
+      - FRESHDESK_API_KEY=${FRESHDESK_API_KEY}
+      - TOOL_ROUTING=${TOOL_ROUTING:-}
+      - ENABLE_CONTEXTFORGE_GATEWAY=${ENABLE_CONTEXTFORGE_GATEWAY:-false}
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
