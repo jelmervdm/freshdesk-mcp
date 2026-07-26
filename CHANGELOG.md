@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
-## [1.1.0] - 2026-07-26
+## [0.2.0] - 2026-07-26
 
 ### Added
 - Companies domain tools (`list_companies`, `get_company`, `create_company`, `update_company`, `delete_company`, `search_companies`).
@@ -19,7 +19,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/) and this 
 - Migrated HTTP execution layer to non-blocking `httpx.AsyncClient`.
 - Enhanced API error response formatting for structured validation error messages.
 
-## [1.0.0] - 2026-07-25
+## [0.1.0] - 2026-07-25
 
 ### Added
 - Initial release of Freshdesk MCP server package.
