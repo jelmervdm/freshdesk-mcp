@@ -1,4 +1,4 @@
-FROM python:3.14-slim
+FROM python:3.12-slim
 
 WORKDIR /app
 
@@ -9,7 +9,7 @@ COPY entrypoint.sh .
 RUN apt-get update && \
     apt-get install -y --no-install-recommends build-essential && \
     pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir '.[router]' mcp-contextforge-gateway --ignore-requires-python && \
+    pip install --no-cache-dir '.[router]' mcp-contextforge-gateway && \
     chmod +x entrypoint.sh && \
     apt-get purge -y --auto-remove build-essential && \
     rm -rf /var/lib/apt/lists/*

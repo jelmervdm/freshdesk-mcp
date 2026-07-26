@@ -10,7 +10,12 @@ create_ticket = mcp._tool_manager._tools["create_ticket"].fn
 update_ticket = mcp._tool_manager._tools["update_ticket"].fn
 delete_ticket = mcp._tool_manager._tools["delete_ticket"].fn
 restore_ticket = mcp._tool_manager._tools["restore_ticket"].fn
+add_reply = mcp._tool_manager._tools["add_reply"].fn
+add_private_note = mcp._tool_manager._tools["add_private_note"].fn
+search_tickets = mcp._tool_manager._tools["search_tickets"].fn
 get_ticket_fields = mcp._tool_manager._tools["get_ticket_fields"].fn
+list_agents = mcp._tool_manager._tools["list_agents"].fn
+list_groups = mcp._tool_manager._tools["list_groups"].fn
 
 list_contacts = mcp._tool_manager._tools["list_contacts"].fn
 get_contact = mcp._tool_manager._tools["get_contact"].fn
@@ -293,3 +298,60 @@ def test_handle_response_error_formatting():
         client._handle_response(mock_response)
 
     assert "Freshdesk API error 400: Validation failed: email: It should be a valid email address" in str(exc_info.value)
+
+
+def test_sanitize_domain():
+    """Test domain sanitization helper."""
+    assert client._sanitize_domain("mycompany") == "mycompany"
+    assert client._sanitize_domain("mycompany.freshdesk.com") == "mycompany"
+    assert client._sanitize_domain("https://mycompany.freshdesk.com") == "mycompany"
+    assert client._sanitize_domain("http://mycompany.freshdesk.com/api/v2") == "mycompany"
+    assert client._sanitize_domain(None) is None
+
+
+def test_format_search_query():
+    """Test search query formatting strips existing quotes cleanly."""
+    assert client._format_search_query("status:2") == '"status:2"'
+    assert client._format_search_query('"status:2 AND priority:3"') == '"status:2 AND priority:3"'
+    assert client._format_search_query("'name:Acme'") == '"name:Acme"'
+
+
+async def test_add_reply_and_note(mock_httpx_client):
+    """Test add_reply and add_private_note."""
+    mock_response = MagicMock()
+    mock_response.status_code = 201
+    mock_response.json.return_value = {"id": 1, "body": "Thank you"}
+    mock_httpx_client.post.return_value = mock_response
+
+    reply = await add_reply(100, "Thank you")
+    assert reply["body"] == "Thank you"
+
+    note = await add_private_note(100, "Internal note", notify_agent_ids=[5])
+    assert note["body"] == "Thank you"
+
+
+async def test_search_tickets(mock_httpx_client):
+    """Test search_tickets uses _format_search_query."""
+    mock_response = MagicMock()
+    mock_response.status_code = 200
+    mock_response.json.return_value = {"results": [{"id": 1, "subject": "Found"}]}
+    mock_httpx_client.get.return_value = mock_response
+
+    res = await search_tickets('"subject:billing"')
+    assert len(res) == 1
+    assert res[0]["subject"] == "Found"
+    mock_httpx_client.get.assert_called_once_with("/search/tickets", params={"query": '"subject:billing"'})
+
+
+async def test_list_agents_and_groups(mock_httpx_client):
+    """Test list_agents and list_groups."""
+    mock_response = MagicMock()
+    mock_response.status_code = 200
+    mock_response.json.return_value = [{"id": 1, "name": "Agent Smith"}]
+    mock_httpx_client.get.return_value = mock_response
+
+    agents = await list_agents()
+    assert len(agents) == 1
+
+    groups = await list_groups()
+    assert len(groups) == 1

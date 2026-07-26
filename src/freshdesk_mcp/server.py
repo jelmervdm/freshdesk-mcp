@@ -136,8 +136,9 @@ async def call_routed_tool(name: str, arguments: str = "{}", ctx: Context = None
     if name in _ALWAYS_VISIBLE:
         return f"Cannot call '{name}' through this tool. Call it directly."
 
-    if name not in _active_tools:
-        return f"Tool '{name}' is not active. Call route_tools first to find available tools."
+    tm = mcp._tool_manager  # type: ignore[attr-defined]
+    if name not in tm._tools:
+        return f"Tool '{name}' is not registered. Call route_tools first to find available tools."
 
     try:
         parsed = _json.loads(arguments) if arguments and arguments != "{}" else {}

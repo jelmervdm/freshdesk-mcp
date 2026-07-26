@@ -1,17 +1,30 @@
+from contextlib import asynccontextmanager
 import logging
 import os
 import sys
-from typing import Any, cast
+from typing import Any, AsyncGenerator, Optional, cast
 
 import httpx
 
 logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
-# Configuration
+# Configuration & Sanitization
 # ---------------------------------------------------------------------------
 
-FRESHDESK_DOMAIN = os.environ.get("FRESHDESK_DOMAIN")
+
+def _sanitize_domain(domain: Optional[str]) -> Optional[str]:
+    """Sanitize input domain string to extract pure sub-domain name."""
+    if not domain:
+        return None
+    d = domain.strip()
+    d = d.replace("https://", "").replace("http://", "")
+    if ".freshdesk.com" in d:
+        d = d.split(".freshdesk.com")[0]
+    return d.split("/")[0].strip()
+
+
+FRESHDESK_DOMAIN = _sanitize_domain(os.environ.get("FRESHDESK_DOMAIN"))
 FRESHDESK_API_KEY = os.environ.get("FRESHDESK_API_KEY")
 
 if not FRESHDESK_DOMAIN or not FRESHDESK_API_KEY:
@@ -41,16 +54,36 @@ SOURCE_MAP = {
 STATUS_MAP_REV = {v: k for k, v in STATUS_MAP.items()}
 PRIORITY_MAP_REV = {v: k for k, v in PRIORITY_MAP.items()}
 
+_shared_client: Optional[httpx.AsyncClient] = None
 
-def _client() -> httpx.AsyncClient:
+
+def _get_shared_client() -> httpx.AsyncClient:
+    """Get or create the singleton httpx.AsyncClient instance."""
+    global _shared_client
     if not BASE_URL or not FRESHDESK_API_KEY:
-        raise RuntimeError("Freshdesk is not configured. Set FRESHDESK_DOMAIN and " "FRESHDESK_API_KEY environment variables.")
-    return httpx.AsyncClient(
-        base_url=BASE_URL,
-        auth=(FRESHDESK_API_KEY, "X"),
-        headers={"Content-Type": "application/json"},
-        timeout=30.0,
-    )
+        raise RuntimeError("Freshdesk is not configured. Set FRESHDESK_DOMAIN and FRESHDESK_API_KEY environment variables.")
+    if _shared_client is None or _shared_client.is_closed:
+        _shared_client = httpx.AsyncClient(
+            base_url=BASE_URL,
+            auth=(FRESHDESK_API_KEY, "X"),
+            headers={"Content-Type": "application/json"},
+            timeout=30.0,
+        )
+    return _shared_client
+
+
+@asynccontextmanager
+async def _client() -> AsyncGenerator[httpx.AsyncClient, None]:
+    """Async context manager that yields the shared persistent httpx client without closing connection pools on exit."""
+    yield _get_shared_client()
+
+
+def _format_search_query(query: str) -> str:
+    """Safely format a search query for Freshdesk search API, removing redundant outer quotes."""
+    cleaned = query.strip()
+    if (cleaned.startswith('"') and cleaned.endswith('"')) or (cleaned.startswith("'") and cleaned.endswith("'")):
+        cleaned = cleaned[1:-1].strip()
+    return f'"{cleaned}"'
 
 
 def _handle_response(resp: httpx.Response) -> Any:

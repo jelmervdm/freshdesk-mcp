@@ -106,6 +106,6 @@ def register(mcp: FastMCP) -> None:
             query: Freshdesk company search query string.
         """
         async with client._client() as c:
-            data = client._handle_response(await c.get("/search/companies", params={"query": f'"{query}"'}))
+            data = client._handle_response(await c.get("/search/companies", params={"query": client._format_search_query(query)}))
         results = data.get("results", data) if isinstance(data, dict) else data
         return cast(list[dict], results)

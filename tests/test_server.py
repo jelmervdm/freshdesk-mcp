@@ -95,3 +95,36 @@ def test_tool_routing_hooks_registration():
     with patch.dict(os.environ, {"TOOL_ROUTING": "true"}), patch.object(mcp, "tool") as mock_tool:
         _install_routing_hooks()
         assert mock_tool.call_count >= 0
+
+
+def test_route_tools_when_disabled():
+    """Verify route_tools behavior when tool routing is disabled."""
+    import os
+    from freshdesk_mcp.server import route_tools
+
+    with patch.dict(os.environ, {"TOOL_ROUTING": "false"}):
+        res = route_tools("list tickets")
+        assert "Tool routing is not enabled" in res
+
+
+async def test_call_routed_tool_when_disabled():
+    """Verify call_routed_tool behavior when tool routing is disabled."""
+    import os
+    from freshdesk_mcp.server import call_routed_tool
+
+    with patch.dict(os.environ, {"TOOL_ROUTING": "false"}):
+        res = await call_routed_tool("list_tickets")
+        assert "Tool routing is not enabled" in res
+
+
+async def test_call_routed_tool_when_enabled():
+    """Verify call_routed_tool behavior when tool routing is enabled."""
+    import os
+    from freshdesk_mcp.server import call_routed_tool
+
+    with patch.dict(os.environ, {"TOOL_ROUTING": "true"}):
+        res_invalid = await call_routed_tool("nonexistent_tool")
+        assert "is not registered" in res_invalid
+
+        res_always_visible = await call_routed_tool("route_tools")
+        assert "Cannot call 'route_tools' through this tool" in res_always_visible

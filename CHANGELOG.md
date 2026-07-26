@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.2.1] - 2026-07-26
+
+### Added
+- Automatic domain sanitization for `FRESHDESK_DOMAIN` environment variable.
+- Utility `_format_search_query()` to strip redundant outer quotes before query execution.
+- Comprehensive test coverage for search formatting, domain sanitization, tool routing, and missing tool functions.
+
+### Changed
+- Refactored `client._client()` to manage persistent `httpx.AsyncClient` connection pools.
+- Updated `call_routed_tool` to allow safe lookup of any registered tool in routed mode.
+- Updated Dockerfile base image to `python:3.12-slim`.
+
 ## [0.2.0] - 2026-07-26
 
 ### Added
