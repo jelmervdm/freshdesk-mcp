@@ -39,15 +39,19 @@ An MCP (Model Context Protocol) server that exposes Freshdesk helpdesk operation
 
 ## Client Integration
 
-### VS Code MCP Configuration
+### VS Code & Antigravity IDE MCP Configuration
 
-Create a `.vscode/mcp.json` file in your workspace:
+Create a `.vscode/mcp.json` file in your workspace (or add to your IDE's MCP settings):
+
+#### Option 1: Docker / Podman
+
+Podman is fully supported on Fedora/RHEL and works as a rootless drop-in replacement for Docker:
 
 ```json
 {
   "servers": {
     "freshdesk": {
-      "command": "docker",
+      "command": "podman",
       "args": [
         "run",
         "-i",
@@ -67,9 +71,11 @@ Create a `.vscode/mcp.json` file in your workspace:
 }
 ```
 
-### Python execution via uvx
+> **Tip for Docker vs Podman**: Simply replace `"command": "podman"` with `"command": "docker"` if using standard Docker or the `podman-docker` alias. Always use `-i` (interactive stdin) and **never** `-t` (TTY), as TTY mode appends carriage returns (`\r\n`) that disrupt JSON-RPC communication over stdio.
 
-If you prefer to run directly without Docker:
+#### Option 2: Python execution via uvx
+
+If you prefer to run directly without containers:
 
 ```json
 {
