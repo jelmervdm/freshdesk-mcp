@@ -73,16 +73,51 @@ Podman is fully supported on Fedora/RHEL and works as a rootless drop-in replace
 
 > **Tip for Docker vs Podman**: Simply replace `"command": "podman"` with `"command": "docker"` if using standard Docker or the `podman-docker` alias. Always use `-i` (interactive stdin) and **never** `-t` (TTY), as TTY mode appends carriage returns (`\r\n`) that disrupt JSON-RPC communication over stdio.
 
-#### Option 2: Python execution via uvx
+#### Option 2: Local Python execution (without PyPI)
 
-If you prefer to run directly without containers:
+If you prefer to run directly from source without containers:
 
+**Via `uv` (local workspace directory):**
+```json
+{
+  "servers": {
+    "freshdesk": {
+      "command": "uv",
+      "args": ["--directory", "/path/to/freshdesk-mcp", "run", "freshdesk-mcp-server"],
+      "env": {
+        "FRESHDESK_DOMAIN": "yourcompany",
+        "FRESHDESK_API_KEY": "your_api_key_here",
+        "TOOL_ROUTING": "false"
+      }
+    }
+  }
+}
+```
+
+**Via `python` (editable install `pip install -e .`):**
+```json
+{
+  "servers": {
+    "freshdesk": {
+      "command": "python",
+      "args": ["-m", "freshdesk_mcp.server"],
+      "env": {
+        "FRESHDESK_DOMAIN": "yourcompany",
+        "FRESHDESK_API_KEY": "your_api_key_here",
+        "TOOL_ROUTING": "false"
+      }
+    }
+  }
+}
+```
+
+**Via `uvx` directly from GitHub repository:**
 ```json
 {
   "servers": {
     "freshdesk": {
       "command": "uvx",
-      "args": ["freshdesk-mcp-server"],
+      "args": ["--from", "git+https://github.com/jelmervdm/freshdesk-mcp.git", "freshdesk-mcp-server"],
       "env": {
         "FRESHDESK_DOMAIN": "yourcompany",
         "FRESHDESK_API_KEY": "your_api_key_here",
