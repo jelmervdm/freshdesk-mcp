@@ -42,10 +42,10 @@ STATUS_MAP_REV = {v: k for k, v in STATUS_MAP.items()}
 PRIORITY_MAP_REV = {v: k for k, v in PRIORITY_MAP.items()}
 
 
-def _client() -> httpx.Client:
+def _client() -> httpx.AsyncClient:
     if not BASE_URL or not FRESHDESK_API_KEY:
         raise RuntimeError("Freshdesk is not configured. Set FRESHDESK_DOMAIN and " "FRESHDESK_API_KEY environment variables.")
-    return httpx.Client(
+    return httpx.AsyncClient(
         base_url=BASE_URL,
         auth=(FRESHDESK_API_KEY, "X"),
         headers={"Content-Type": "application/json"},
@@ -57,9 +57,19 @@ def _handle_response(resp: httpx.Response) -> Any:
     if resp.status_code >= 400:
         try:
             detail = resp.json()
+            if isinstance(detail, dict):
+                if "errors" in detail and isinstance(detail["errors"], list):
+                    err_msgs = [f"{e.get('field', 'error')}: {e.get('message', '')}" for e in detail["errors"] if isinstance(e, dict)]
+                    detail_str = f"{detail.get('description', 'Validation failed')}: {'; '.join(err_msgs)}"
+                elif "description" in detail:
+                    detail_str = detail["description"]
+                else:
+                    detail_str = str(detail)
+            else:
+                detail_str = str(detail)
         except Exception:
-            detail = resp.text
-        raise RuntimeError(f"Freshdesk API error {resp.status_code}: {detail}")
+            detail_str = resp.text
+        raise RuntimeError(f"Freshdesk API error {resp.status_code}: {detail_str}")
     if resp.status_code == 204 or not resp.content:
         return {"success": True}
     return resp.json()

@@ -10,10 +10,15 @@ An MCP (Model Context Protocol) server that exposes Freshdesk helpdesk operation
 
 ## Features
 
-- **Ticket Management**: Create, list, search, view, update, delete tickets, add replies, and add private notes.
-- **Contact Management**: Create, list, and look up contacts.
+- **Ticket Management**: Create, list, search, view, update, delete, restore tickets, add replies, add private notes, and inspect ticket fields metadata.
+- **Company Management**: Create, list, search, view, update, and delete customer companies.
+- **Contact Management**: Create, list, search, view, update, and delete customer contacts.
+- **Time Tracking**: List, log, update, and delete billable/non-billable time entries on tickets.
+- **Solutions Knowledge Base**: Browse categories, folders, articles, and search knowledge base solutions.
 - **Support Staff (Agents & Groups)**: List agents and ticket assignment groups.
-- **Tool Routing**: Enable semantic search routing to dramatically reduce LLM context usage by only showing active/relevant tools.
+- **MCP Resources & Prompts**: Dynamic resources (`freshdesk://ticket-fields`, `freshdesk://agents`) and workflow prompt templates (`triage_ticket`, `draft_reply`).
+- **Async HTTP Client**: Non-blocking `httpx.AsyncClient` context for fast, efficient API calls.
+- **Tool Routing**: Enable semantic search routing (`TOOL_ROUTING=true`) to dramatically reduce LLM context usage.
 - **ContextForge Gateway Support**: Integrated SSE gateway to expose standard MCP servers as SSE interfaces.
 
 ---

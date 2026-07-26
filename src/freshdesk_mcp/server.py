@@ -4,17 +4,23 @@ from typing import Any
 
 from mcp.server.fastmcp import FastMCP, Context
 
+from freshdesk_mcp import resources, prompts
 from freshdesk_mcp.router import get_router
-from freshdesk_mcp.tools import tickets, contacts, agents
+from freshdesk_mcp.tools import tickets, contacts, agents, companies, time_entries, solutions
 
 logger = logging.getLogger(__name__)
 
 mcp = FastMCP("freshdesk")
 
-# Register all domain-specific tool modules
+# Register all domain-specific modules, resources, and prompts
 tickets.register(mcp)
 contacts.register(mcp)
 agents.register(mcp)
+companies.register(mcp)
+time_entries.register(mcp)
+solutions.register(mcp)
+resources.register(mcp)
+prompts.register(mcp)
 
 
 # ---------------------------------------------------------------------------

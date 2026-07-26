@@ -8,7 +8,7 @@ def register(mcp: FastMCP) -> None:
     """Register ticket management tools."""
 
     @mcp.tool()
-    def list_tickets(
+    async def list_tickets(
         page: int = 1,
         per_page: int = 30,
         status: Optional[str] = None,
@@ -41,12 +41,12 @@ def register(mcp: FastMCP) -> None:
                 raise ValueError(f"Invalid priority '{priority}'. Use one of {list(client.PRIORITY_MAP)}")
             params["priority"] = client.PRIORITY_MAP[priority]
 
-        with client._client() as c:
-            data = client._handle_response(c.get("/tickets", params=params))
+        async with client._client() as c:
+            data = client._handle_response(await c.get("/tickets", params=params))
         return [client._simplify_ticket(t) for t in data]
 
     @mcp.tool()
-    def get_ticket(ticket_id: int, include_conversations: bool = False) -> dict:
+    async def get_ticket(ticket_id: int, include_conversations: bool = False) -> dict:
         """Get full details of a single ticket by ID.
 
         Args:
@@ -54,15 +54,15 @@ def register(mcp: FastMCP) -> None:
             include_conversations: If true, also fetch and include the ticket's
                 conversation thread (replies and notes).
         """
-        with client._client() as c:
-            ticket = cast(dict, client._handle_response(c.get(f"/tickets/{ticket_id}")))
+        async with client._client() as c:
+            ticket = cast(dict, client._handle_response(await c.get(f"/tickets/{ticket_id}")))
             if include_conversations:
-                convos = cast(list, client._handle_response(c.get(f"/tickets/{ticket_id}/conversations")))
+                convos = cast(list, client._handle_response(await c.get(f"/tickets/{ticket_id}/conversations")))
                 ticket["conversations"] = convos
         return ticket
 
     @mcp.tool()
-    def search_tickets(query: str) -> list[dict]:
+    async def search_tickets(query: str) -> list[dict]:
         """Search tickets using Freshdesk's query syntax.
 
         Args:
@@ -72,13 +72,13 @@ def register(mcp: FastMCP) -> None:
                 Do not include surrounding quotes beyond what the syntax needs;
                 this tool will wrap the query for you.
         """
-        with client._client() as c:
-            data = client._handle_response(c.get("/search/tickets", params={"query": f'"{query}"'}))
+        async with client._client() as c:
+            data = client._handle_response(await c.get("/search/tickets", params={"query": f'"{query}"'}))
         results = data.get("results", data) if isinstance(data, dict) else data
         return [client._simplify_ticket(t) for t in results]
 
     @mcp.tool()
-    def create_ticket(
+    async def create_ticket(
         subject: str,
         description: str,
         email: str,
@@ -125,11 +125,11 @@ def register(mcp: FastMCP) -> None:
         if responder_id is not None:
             payload["responder_id"] = responder_id
 
-        with client._client() as c:
-            return cast(dict, client._handle_response(c.post("/tickets", json=payload)))
+        async with client._client() as c:
+            return cast(dict, client._handle_response(await c.post("/tickets", json=payload)))
 
     @mcp.tool()
-    def update_ticket(
+    async def update_ticket(
         ticket_id: int,
         status: Optional[str] = None,
         priority: Optional[str] = None,
@@ -170,28 +170,38 @@ def register(mcp: FastMCP) -> None:
         if not payload:
             raise ValueError("No fields provided to update.")
 
-        with client._client() as c:
-            return cast(dict, client._handle_response(c.put(f"/tickets/{ticket_id}", json=payload)))
+        async with client._client() as c:
+            return cast(dict, client._handle_response(await c.put(f"/tickets/{ticket_id}", json=payload)))
 
     @mcp.tool()
-    def delete_ticket(ticket_id: int) -> dict:
+    async def delete_ticket(ticket_id: int) -> dict:
         """Delete (soft-delete) a ticket by ID. Freshdesk moves it to the trash."""
-        with client._client() as c:
-            return cast(dict, client._handle_response(c.delete(f"/tickets/{ticket_id}")))
+        async with client._client() as c:
+            return cast(dict, client._handle_response(await c.delete(f"/tickets/{ticket_id}")))
 
     @mcp.tool()
-    def add_reply(ticket_id: int, body: str) -> dict:
+    async def restore_ticket(ticket_id: int) -> dict:
+        """Restore a soft-deleted ticket from the trash.
+
+        Args:
+            ticket_id: The Freshdesk ticket ID to restore.
+        """
+        async with client._client() as c:
+            return cast(dict, client._handle_response(await c.put(f"/tickets/{ticket_id}/restore")))
+
+    @mcp.tool()
+    async def add_reply(ticket_id: int, body: str) -> dict:
         """Add a public reply to a ticket (visible to the customer).
 
         Args:
             ticket_id: The Freshdesk ticket ID.
             body: The reply content (HTML or plain text).
         """
-        with client._client() as c:
-            return cast(dict, client._handle_response(c.post(f"/tickets/{ticket_id}/reply", json={"body": body})))
+        async with client._client() as c:
+            return cast(dict, client._handle_response(await c.post(f"/tickets/{ticket_id}/reply", json={"body": body})))
 
     @mcp.tool()
-    def add_private_note(ticket_id: int, body: str, notify_agent_ids: Optional[list[int]] = None) -> dict:
+    async def add_private_note(ticket_id: int, body: str, notify_agent_ids: Optional[list[int]] = None) -> dict:
         """Add a private/internal note to a ticket (not visible to the customer).
 
         Args:
@@ -202,5 +212,11 @@ def register(mcp: FastMCP) -> None:
         payload: dict[str, Any] = {"body": body, "private": True}
         if notify_agent_ids:
             payload["notify_emails"] = notify_agent_ids
-        with client._client() as c:
-            return cast(dict, client._handle_response(c.post(f"/tickets/{ticket_id}/notes", json=payload)))
+        async with client._client() as c:
+            return cast(dict, client._handle_response(await c.post(f"/tickets/{ticket_id}/notes", json=payload)))
+
+    @mcp.tool()
+    async def get_ticket_fields() -> list[dict]:
+        """Fetch ticket form fields metadata including custom fields and dropdown choices."""
+        async with client._client() as c:
+            return cast(list[dict], client._handle_response(await c.get("/ticket_fields")))
