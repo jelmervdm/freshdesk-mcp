@@ -15,7 +15,10 @@ def register(mcp: FastMCP) -> None:
             ticket_id: The Freshdesk ticket ID.
         """
         async with client._client() as c:
-            return cast(list[dict], client._handle_response(await c.get(f"/tickets/{ticket_id}/time_entries")))
+            return cast(
+                list[dict],
+                client._handle_response(await c.get(f"/tickets/{ticket_id}/time_entries")),
+            )
 
     @mcp.tool()
     async def create_time_entry(
@@ -43,7 +46,12 @@ def register(mcp: FastMCP) -> None:
             payload["agent_id"] = agent_id
 
         async with client._client() as c:
-            return cast(dict, client._handle_response(await c.post(f"/tickets/{ticket_id}/time_entries", json=payload)))
+            return cast(
+                dict,
+                client._handle_response(
+                    await c.post(f"/tickets/{ticket_id}/time_entries", json=payload)
+                ),
+            )
 
     @mcp.tool()
     async def update_time_entry(
@@ -72,7 +80,12 @@ def register(mcp: FastMCP) -> None:
             raise ValueError("No fields provided to update.")
 
         async with client._client() as c:
-            return cast(dict, client._handle_response(await c.put(f"/time_entries/{time_entry_id}", json=payload)))
+            return cast(
+                dict,
+                client._handle_response(
+                    await c.put(f"/time_entries/{time_entry_id}", json=payload)
+                ),
+            )
 
     @mcp.tool()
     async def delete_time_entry(time_entry_id: int) -> dict:
@@ -82,4 +95,6 @@ def register(mcp: FastMCP) -> None:
             time_entry_id: The time entry ID to delete.
         """
         async with client._client() as c:
-            return cast(dict, client._handle_response(await c.delete(f"/time_entries/{time_entry_id}")))
+            return cast(
+                dict, client._handle_response(await c.delete(f"/time_entries/{time_entry_id}"))
+            )

@@ -38,7 +38,9 @@ def register(mcp: FastMCP) -> None:
             params["status"] = client.STATUS_MAP[status]
         if priority:
             if priority not in client.PRIORITY_MAP:
-                raise ValueError(f"Invalid priority '{priority}'. Use one of {list(client.PRIORITY_MAP)}")
+                raise ValueError(
+                    f"Invalid priority '{priority}'. Use one of {list(client.PRIORITY_MAP)}"
+                )
             params["priority"] = client.PRIORITY_MAP[priority]
 
         async with client._client() as c:
@@ -57,7 +59,10 @@ def register(mcp: FastMCP) -> None:
         async with client._client() as c:
             ticket = cast(dict, client._handle_response(await c.get(f"/tickets/{ticket_id}")))
             if include_conversations:
-                convos = cast(list, client._handle_response(await c.get(f"/tickets/{ticket_id}/conversations")))
+                convos = cast(
+                    list,
+                    client._handle_response(await c.get(f"/tickets/{ticket_id}/conversations")),
+                )
                 ticket["conversations"] = convos
         return ticket
 
@@ -73,7 +78,9 @@ def register(mcp: FastMCP) -> None:
                 this tool will wrap the query for you.
         """
         async with client._client() as c:
-            data = client._handle_response(await c.get("/search/tickets", params={"query": client._format_search_query(query)}))
+            data = client._handle_response(
+                await c.get("/search/tickets", params={"query": client._format_search_query(query)})
+            )
         results = data.get("results", data) if isinstance(data, dict) else data
         return [client._simplify_ticket(t) for t in results]
 
@@ -104,7 +111,9 @@ def register(mcp: FastMCP) -> None:
             responder_id: Optional agent ID to assign the ticket to.
         """
         if priority not in client.PRIORITY_MAP:
-            raise ValueError(f"Invalid priority '{priority}'. Use one of {list(client.PRIORITY_MAP)}")
+            raise ValueError(
+                f"Invalid priority '{priority}'. Use one of {list(client.PRIORITY_MAP)}"
+            )
         if status not in client.STATUS_MAP:
             raise ValueError(f"Invalid status '{status}'. Use one of {list(client.STATUS_MAP)}")
         if source not in client.SOURCE_MAP:
@@ -156,7 +165,9 @@ def register(mcp: FastMCP) -> None:
             payload["status"] = client.STATUS_MAP[status]
         if priority is not None:
             if priority not in client.PRIORITY_MAP:
-                raise ValueError(f"Invalid priority '{priority}'. Use one of {list(client.PRIORITY_MAP)}")
+                raise ValueError(
+                    f"Invalid priority '{priority}'. Use one of {list(client.PRIORITY_MAP)}"
+                )
             payload["priority"] = client.PRIORITY_MAP[priority]
         if subject is not None:
             payload["subject"] = subject
@@ -171,7 +182,9 @@ def register(mcp: FastMCP) -> None:
             raise ValueError("No fields provided to update.")
 
         async with client._client() as c:
-            return cast(dict, client._handle_response(await c.put(f"/tickets/{ticket_id}", json=payload)))
+            return cast(
+                dict, client._handle_response(await c.put(f"/tickets/{ticket_id}", json=payload))
+            )
 
     @mcp.tool()
     async def delete_ticket(ticket_id: int) -> dict:
@@ -198,10 +211,17 @@ def register(mcp: FastMCP) -> None:
             body: The reply content (HTML or plain text).
         """
         async with client._client() as c:
-            return cast(dict, client._handle_response(await c.post(f"/tickets/{ticket_id}/reply", json={"body": body})))
+            return cast(
+                dict,
+                client._handle_response(
+                    await c.post(f"/tickets/{ticket_id}/reply", json={"body": body})
+                ),
+            )
 
     @mcp.tool()
-    async def add_private_note(ticket_id: int, body: str, notify_agent_ids: Optional[list[int]] = None) -> dict:
+    async def add_private_note(
+        ticket_id: int, body: str, notify_agent_ids: Optional[list[int]] = None
+    ) -> dict:
         """Add a private/internal note to a ticket (not visible to the customer).
 
         Args:
@@ -213,7 +233,10 @@ def register(mcp: FastMCP) -> None:
         if notify_agent_ids:
             payload["notify_emails"] = notify_agent_ids
         async with client._client() as c:
-            return cast(dict, client._handle_response(await c.post(f"/tickets/{ticket_id}/notes", json=payload)))
+            return cast(
+                dict,
+                client._handle_response(await c.post(f"/tickets/{ticket_id}/notes", json=payload)),
+            )
 
     @mcp.tool()
     async def get_ticket_fields() -> list[dict]:

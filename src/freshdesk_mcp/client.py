@@ -29,7 +29,8 @@ FRESHDESK_API_KEY = os.environ.get("FRESHDESK_API_KEY")
 
 if not FRESHDESK_DOMAIN or not FRESHDESK_API_KEY:
     print(
-        "ERROR: FRESHDESK_DOMAIN and FRESHDESK_API_KEY environment variables " "must be set before starting this server.",
+        "ERROR: FRESHDESK_DOMAIN and FRESHDESK_API_KEY environment variables "
+        "must be set before starting this server.",
         file=sys.stderr,
     )
 
@@ -61,7 +62,9 @@ def _get_shared_client() -> httpx.AsyncClient:
     """Get or create the singleton httpx.AsyncClient instance."""
     global _shared_client
     if not BASE_URL or not FRESHDESK_API_KEY:
-        raise RuntimeError("Freshdesk is not configured. Set FRESHDESK_DOMAIN and FRESHDESK_API_KEY environment variables.")
+        raise RuntimeError(
+            "Freshdesk is not configured. Set FRESHDESK_DOMAIN and FRESHDESK_API_KEY environment variables."
+        )
     if _shared_client is None or _shared_client.is_closed:
         _shared_client = httpx.AsyncClient(
             base_url=BASE_URL,
@@ -81,7 +84,9 @@ async def _client() -> AsyncGenerator[httpx.AsyncClient, None]:
 def _format_search_query(query: str) -> str:
     """Safely format a search query for Freshdesk search API, removing redundant outer quotes."""
     cleaned = query.strip()
-    if (cleaned.startswith('"') and cleaned.endswith('"')) or (cleaned.startswith("'") and cleaned.endswith("'")):
+    if (cleaned.startswith('"') and cleaned.endswith('"')) or (
+        cleaned.startswith("'") and cleaned.endswith("'")
+    ):
         cleaned = cleaned[1:-1].strip()
     return f'"{cleaned}"'
 
@@ -92,8 +97,14 @@ def _handle_response(resp: httpx.Response) -> Any:
             detail = resp.json()
             if isinstance(detail, dict):
                 if "errors" in detail and isinstance(detail["errors"], list):
-                    err_msgs = [f"{e.get('field', 'error')}: {e.get('message', '')}" for e in detail["errors"] if isinstance(e, dict)]
-                    detail_str = f"{detail.get('description', 'Validation failed')}: {'; '.join(err_msgs)}"
+                    err_msgs = [
+                        f"{e.get('field', 'error')}: {e.get('message', '')}"
+                        for e in detail["errors"]
+                        if isinstance(e, dict)
+                    ]
+                    detail_str = (
+                        f"{detail.get('description', 'Validation failed')}: {'; '.join(err_msgs)}"
+                    )
                 elif "description" in detail:
                     detail_str = detail["description"]
                 else:

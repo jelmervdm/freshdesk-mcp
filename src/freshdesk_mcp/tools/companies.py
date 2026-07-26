@@ -17,7 +17,9 @@ def register(mcp: FastMCP) -> None:
         """
         params = {"page": page, "per_page": min(per_page, 100)}
         async with client._client() as c:
-            return cast(list[dict], client._handle_response(await c.get("/companies", params=params)))
+            return cast(
+                list[dict], client._handle_response(await c.get("/companies", params=params))
+            )
 
     @mcp.tool()
     async def get_company(company_id: int) -> dict:
@@ -86,7 +88,9 @@ def register(mcp: FastMCP) -> None:
             raise ValueError("No fields provided to update.")
 
         async with client._client() as c:
-            return cast(dict, client._handle_response(await c.put(f"/companies/{company_id}", json=payload)))
+            return cast(
+                dict, client._handle_response(await c.put(f"/companies/{company_id}", json=payload))
+            )
 
     @mcp.tool()
     async def delete_company(company_id: int) -> dict:
@@ -106,6 +110,10 @@ def register(mcp: FastMCP) -> None:
             query: Freshdesk company search query string.
         """
         async with client._client() as c:
-            data = client._handle_response(await c.get("/search/companies", params={"query": client._format_search_query(query)}))
+            data = client._handle_response(
+                await c.get(
+                    "/search/companies", params={"query": client._format_search_query(query)}
+                )
+            )
         results = data.get("results", data) if isinstance(data, dict) else data
         return cast(list[dict], results)

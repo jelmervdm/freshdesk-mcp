@@ -297,7 +297,10 @@ def test_handle_response_error_formatting():
     with pytest.raises(RuntimeError) as exc_info:
         client._handle_response(mock_response)
 
-    assert "Freshdesk API error 400: Validation failed: email: It should be a valid email address" in str(exc_info.value)
+    assert (
+        "Freshdesk API error 400: Validation failed: email: It should be a valid email address"
+        in str(exc_info.value)
+    )
 
 
 def test_sanitize_domain():
@@ -340,7 +343,9 @@ async def test_search_tickets(mock_httpx_client):
     res = await search_tickets('"subject:billing"')
     assert len(res) == 1
     assert res[0]["subject"] == "Found"
-    mock_httpx_client.get.assert_called_once_with("/search/tickets", params={"query": '"subject:billing"'})
+    mock_httpx_client.get.assert_called_once_with(
+        "/search/tickets", params={"query": '"subject:billing"'}
+    )
 
 
 async def test_list_agents_and_groups(mock_httpx_client):

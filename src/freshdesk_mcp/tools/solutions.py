@@ -21,7 +21,12 @@ def register(mcp: FastMCP) -> None:
             category_id: The category ID.
         """
         async with client._client() as c:
-            return cast(list[dict], client._handle_response(await c.get(f"/solutions/categories/{category_id}/folders")))
+            return cast(
+                list[dict],
+                client._handle_response(
+                    await c.get(f"/solutions/categories/{category_id}/folders")
+                ),
+            )
 
     @mcp.tool()
     async def list_solution_articles(folder_id: int) -> list[dict]:
@@ -31,7 +36,10 @@ def register(mcp: FastMCP) -> None:
             folder_id: The folder ID.
         """
         async with client._client() as c:
-            return cast(list[dict], client._handle_response(await c.get(f"/solutions/folders/{folder_id}/articles")))
+            return cast(
+                list[dict],
+                client._handle_response(await c.get(f"/solutions/folders/{folder_id}/articles")),
+            )
 
     @mcp.tool()
     async def get_solution_article(article_id: int) -> dict:
@@ -41,7 +49,9 @@ def register(mcp: FastMCP) -> None:
             article_id: The solution article ID.
         """
         async with client._client() as c:
-            return cast(dict, client._handle_response(await c.get(f"/solutions/articles/{article_id}")))
+            return cast(
+                dict, client._handle_response(await c.get(f"/solutions/articles/{article_id}"))
+            )
 
     @mcp.tool()
     async def search_solution_articles(query: str) -> list[dict]:

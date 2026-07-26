@@ -114,7 +114,9 @@ def route_tools(query: str) -> str:
 
     logger.info("route_tools(%r) → %d tools activated", query, len(_active_tools))
 
-    lines = [f"Found {len(_active_tools)} tools. Use call_routed_tool(name, arguments) to invoke one:\n"]
+    lines = [
+        f"Found {len(_active_tools)} tools. Use call_routed_tool(name, arguments) to invoke one:\n"
+    ]
     for tool in _active_tools.values():
         lines.append(f"  {_tool_summary(tool)}")
     return "\n".join(lines)

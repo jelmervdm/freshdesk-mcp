@@ -8,7 +8,9 @@ def register(mcp: FastMCP) -> None:
     """Register contact management tools."""
 
     @mcp.tool()
-    async def list_contacts(page: int = 1, per_page: int = 30, email: Optional[str] = None) -> list[dict]:
+    async def list_contacts(
+        page: int = 1, per_page: int = 30, email: Optional[str] = None
+    ) -> list[dict]:
         """List or look up Freshdesk contacts (customers).
 
         Args:
@@ -20,7 +22,9 @@ def register(mcp: FastMCP) -> None:
         if email:
             params["email"] = email
         async with client._client() as c:
-            return cast(list[dict], client._handle_response(await c.get("/contacts", params=params)))
+            return cast(
+                list[dict], client._handle_response(await c.get("/contacts", params=params))
+            )
 
     @mcp.tool()
     async def get_contact(contact_id: int) -> dict:
@@ -95,7 +99,9 @@ def register(mcp: FastMCP) -> None:
             raise ValueError("No fields provided to update.")
 
         async with client._client() as c:
-            return cast(dict, client._handle_response(await c.put(f"/contacts/{contact_id}", json=payload)))
+            return cast(
+                dict, client._handle_response(await c.put(f"/contacts/{contact_id}", json=payload))
+            )
 
     @mcp.tool()
     async def delete_contact(contact_id: int) -> dict:
@@ -115,6 +121,10 @@ def register(mcp: FastMCP) -> None:
             query: Freshdesk contact search query string.
         """
         async with client._client() as c:
-            data = client._handle_response(await c.get("/search/contacts", params={"query": client._format_search_query(query)}))
+            data = client._handle_response(
+                await c.get(
+                    "/search/contacts", params={"query": client._format_search_query(query)}
+                )
+            )
         results = data.get("results", data) if isinstance(data, dict) else data
         return cast(list[dict], results)
