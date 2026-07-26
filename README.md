@@ -49,7 +49,7 @@ Podman is fully supported on Fedora/RHEL and works as a rootless drop-in replace
 
 ```json
 {
-  "servers": {
+  "mcpServers": {
     "freshdesk": {
       "command": "podman",
       "args": [
@@ -80,7 +80,7 @@ If you prefer to run directly from source without containers:
 **Via `uv` (local workspace directory):**
 ```json
 {
-  "servers": {
+  "mcpServers": {
     "freshdesk": {
       "command": "uv",
       "args": ["--directory", "/path/to/freshdesk-mcp", "run", "freshdesk-mcp-server"],
@@ -97,7 +97,7 @@ If you prefer to run directly from source without containers:
 **Via `python` (editable install `pip install -e .`):**
 ```json
 {
-  "servers": {
+  "mcpServers": {
     "freshdesk": {
       "command": "python",
       "args": ["-m", "freshdesk_mcp.server"],
@@ -114,7 +114,7 @@ If you prefer to run directly from source without containers:
 **Via `uvx` directly from GitHub repository:**
 ```json
 {
-  "servers": {
+  "mcpServers": {
     "freshdesk": {
       "command": "uvx",
       "args": ["--from", "git+https://github.com/jelmervdm/freshdesk-mcp.git", "freshdesk-mcp-server"],
