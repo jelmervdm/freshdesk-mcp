@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.1.0] - 2026-07-26
+
+### Added
+- Companies domain tools (`list_companies`, `get_company`, `create_company`, `update_company`, `delete_company`, `search_companies`).
+- Time tracking tools (`list_time_entries`, `create_time_entry`, `update_time_entry`, `delete_time_entry`).
+- Solutions / Knowledge base tools (`list_solution_categories`, `list_solution_folders`, `list_solution_articles`, `get_solution_article`, `search_solution_articles`).
+- Expanded Contact tools (`get_contact`, `update_contact`, `delete_contact`, `search_contacts`).
+- Ticket field metadata (`get_ticket_fields`) and ticket restoration (`restore_ticket`).
+- Dynamic MCP Resources (`freshdesk://ticket-fields`, `freshdesk://agents`).
+- Workflow MCP Prompt templates (`triage_ticket`, `draft_reply`).
+
+### Changed
+- Migrated HTTP execution layer to non-blocking `httpx.AsyncClient`.
+- Enhanced API error response formatting for structured validation error messages.
+
 ## [1.0.0] - 2026-07-25
 
 ### Added
