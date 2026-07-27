@@ -11,7 +11,7 @@ def register(mcp: FastMCP) -> None:
 
     @mcp.tool(annotations=ToolAnnotations(readOnlyHint=True))
     async def list_time_entries(
-        ticket_id: Annotated[int, Field(description="The Freshdesk ticket ID.")]
+        ticket_id: Annotated[int, Field(description="The Freshdesk ticket ID.")],
     ) -> list[dict]:
         """List time entries logged on a specific Freshdesk ticket.
 
@@ -30,11 +30,15 @@ def register(mcp: FastMCP) -> None:
     async def create_time_entry(
         ticket_id: Annotated[int, Field(description="The Freshdesk ticket ID.")],
         time_spent: Annotated[
-            str, Field(description="Time spent formatted as 'hh:mm' or 'mm' (e.g. '01:30' or '45').")
+            str,
+            Field(description="Time spent formatted as 'hh:mm' or 'mm' (e.g. '01:30' or '45')."),
         ],
-        note: Annotated[Optional[str], Field(description="Optional description/note of work done.")] = None,
+        note: Annotated[
+            Optional[str], Field(description="Optional description/note of work done.")
+        ] = None,
         billable: Annotated[
-            Optional[bool], Field(description="Optional boolean indicating whether time is billable.")
+            Optional[bool],
+            Field(description="Optional boolean indicating whether time is billable."),
         ] = None,
         agent_id: Annotated[
             Optional[int], Field(description="Optional agent ID who performed the work.")
@@ -109,7 +113,7 @@ def register(mcp: FastMCP) -> None:
 
     @mcp.tool(annotations=ToolAnnotations(destructiveHint=True, idempotentHint=True))
     async def delete_time_entry(
-        time_entry_id: Annotated[int, Field(description="The time entry ID to delete.")]
+        time_entry_id: Annotated[int, Field(description="The time entry ID to delete.")],
     ) -> dict:
         """Delete a time entry by ID.
 
@@ -122,4 +126,3 @@ def register(mcp: FastMCP) -> None:
             return cast(
                 dict, client._handle_response(await c.delete(f"/time_entries/{time_entry_id}"))
             )
-

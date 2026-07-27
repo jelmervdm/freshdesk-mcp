@@ -34,4 +34,3 @@ def register(mcp: FastMCP) -> None:
         """
         async with client._client() as c:
             return cast(list[dict], client._handle_response(await c.get("/groups")))
-

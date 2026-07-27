@@ -20,7 +20,7 @@ def register(mcp: FastMCP) -> None:
 
     @mcp.tool(annotations=ToolAnnotations(readOnlyHint=True))
     async def list_solution_folders(
-        category_id: Annotated[int, Field(description="The category ID.")]
+        category_id: Annotated[int, Field(description="The category ID.")],
     ) -> list[dict]:
         """List solution folders within a specific category.
 
@@ -39,7 +39,7 @@ def register(mcp: FastMCP) -> None:
 
     @mcp.tool(annotations=ToolAnnotations(readOnlyHint=True))
     async def list_solution_articles(
-        folder_id: Annotated[int, Field(description="The folder ID.")]
+        folder_id: Annotated[int, Field(description="The folder ID.")],
     ) -> list[dict]:
         """List solution articles within a specific folder.
 
@@ -56,7 +56,7 @@ def register(mcp: FastMCP) -> None:
 
     @mcp.tool(annotations=ToolAnnotations(readOnlyHint=True))
     async def get_solution_article(
-        article_id: Annotated[int, Field(description="The solution article ID.")]
+        article_id: Annotated[int, Field(description="The solution article ID.")],
     ) -> dict:
         """Get full details of a solution knowledge base article by ID.
 
@@ -72,7 +72,7 @@ def register(mcp: FastMCP) -> None:
 
     @mcp.tool(annotations=ToolAnnotations(readOnlyHint=True))
     async def search_solution_articles(
-        query: Annotated[str, Field(description="The search term or keywords to query.")]
+        query: Annotated[str, Field(description="The search term or keywords to query.")],
     ) -> list[dict]:
         """Search solution knowledge base articles using a keyword query.
 
@@ -85,4 +85,3 @@ def register(mcp: FastMCP) -> None:
             data = client._handle_response(await c.get("/search/solutions", params={"term": query}))
         results = data.get("results", data) if isinstance(data, dict) else data
         return cast(list[dict], results)
-

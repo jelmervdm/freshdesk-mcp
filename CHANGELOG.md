@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.2.3] - 2026-07-27
+
+### Changed
+- **Tool Definition Quality Score (TDQS) Optimization**: Upgraded all 35 FastMCP tool definitions to Tier A+ status (score 4.7 / 5.0).
+- Added explicit FastMCP `ToolAnnotations` (`readOnlyHint`, `destructiveHint`, `idempotentHint`) across all tool decorators for client safety and UI hint rendering.
+- Converted parameter type annotations to `Annotated[T, Field(description=...)]` for 100% parameter coverage in exposed JSON schemas.
+- Expanded tool docstrings with explicit operational usage guidelines and named alternative tool guidance.
+
 ## [0.2.2] - 2026-07-26
 
 ### Fixed

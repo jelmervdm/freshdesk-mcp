@@ -31,7 +31,7 @@ def register(mcp: FastMCP) -> None:
 
     @mcp.tool(annotations=ToolAnnotations(readOnlyHint=True))
     async def get_company(
-        company_id: Annotated[int, Field(description="The Freshdesk company ID.")]
+        company_id: Annotated[int, Field(description="The Freshdesk company ID.")],
     ) -> dict:
         """Get details of a single Freshdesk company by ID.
 
@@ -50,7 +50,8 @@ def register(mcp: FastMCP) -> None:
             Optional[str], Field(description="Description of company profile.")
         ] = None,
         domains: Annotated[
-            Optional[list[str]], Field(description="Associated domain names (e.g. ['example.com']).")
+            Optional[list[str]],
+            Field(description="Associated domain names (e.g. ['example.com'])."),
         ] = None,
         note: Annotated[Optional[str], Field(description="Internal notes about company.")] = None,
     ) -> dict:
@@ -120,7 +121,7 @@ def register(mcp: FastMCP) -> None:
 
     @mcp.tool(annotations=ToolAnnotations(destructiveHint=True, idempotentHint=True))
     async def delete_company(
-        company_id: Annotated[int, Field(description="The Freshdesk company ID to soft-delete.")]
+        company_id: Annotated[int, Field(description="The Freshdesk company ID to soft-delete.")],
     ) -> dict:
         """Delete (soft-delete) a Freshdesk company by ID.
 
@@ -134,9 +135,7 @@ def register(mcp: FastMCP) -> None:
 
     @mcp.tool(annotations=ToolAnnotations(readOnlyHint=True))
     async def search_companies(
-        query: Annotated[
-            str, Field(description="Company search query string (e.g. 'name:Acme').")
-        ]
+        query: Annotated[str, Field(description="Company search query string (e.g. 'name:Acme').")],
     ) -> list[dict]:
         """Search companies using Freshdesk search query syntax.
 
@@ -153,4 +152,3 @@ def register(mcp: FastMCP) -> None:
             )
         results = data.get("results", data) if isinstance(data, dict) else data
         return cast(list[dict], results)
-

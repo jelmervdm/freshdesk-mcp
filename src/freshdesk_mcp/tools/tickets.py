@@ -22,7 +22,8 @@ def register(mcp: FastMCP) -> None:
             Field(description="Filter by priority: 'low', 'medium', 'high', or 'urgent'."),
         ] = None,
         order_by: Annotated[
-            str, Field(description="Field to sort by (e.g. 'created_at', 'updated_at', 'priority').")
+            str,
+            Field(description="Field to sort by (e.g. 'created_at', 'updated_at', 'priority')."),
         ] = "created_at",
         order_type: Annotated[str, Field(description="Sort order: 'asc' or 'desc'.")] = "desc",
     ) -> list[dict]:
@@ -90,8 +91,9 @@ def register(mcp: FastMCP) -> None:
     @mcp.tool(annotations=ToolAnnotations(readOnlyHint=True))
     async def search_tickets(
         query: Annotated[
-            str, Field(description="Freshdesk search query string (e.g. 'priority:3 AND status:2').")
-        ]
+            str,
+            Field(description="Freshdesk search query string (e.g. 'priority:3 AND status:2')."),
+        ],
     ) -> list[dict]:
         """Search tickets using Freshdesk's query syntax.
 
@@ -249,7 +251,7 @@ def register(mcp: FastMCP) -> None:
 
     @mcp.tool(annotations=ToolAnnotations(destructiveHint=True, idempotentHint=True))
     async def delete_ticket(
-        ticket_id: Annotated[int, Field(description="The Freshdesk ticket ID to soft-delete.")]
+        ticket_id: Annotated[int, Field(description="The Freshdesk ticket ID to soft-delete.")],
     ) -> dict:
         """Delete (soft-delete) a ticket by ID. Freshdesk moves it to the trash.
 
@@ -263,7 +265,7 @@ def register(mcp: FastMCP) -> None:
 
     @mcp.tool(annotations=ToolAnnotations(destructiveHint=False, idempotentHint=True))
     async def restore_ticket(
-        ticket_id: Annotated[int, Field(description="The Freshdesk ticket ID to restore.")]
+        ticket_id: Annotated[int, Field(description="The Freshdesk ticket ID to restore.")],
     ) -> dict:
         """Restore a soft-deleted ticket from the trash.
 
@@ -330,4 +332,3 @@ def register(mcp: FastMCP) -> None:
         """
         async with client._client() as c:
             return cast(list[dict], client._handle_response(await c.get("/ticket_fields")))
-

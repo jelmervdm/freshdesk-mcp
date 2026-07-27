@@ -36,7 +36,7 @@ def register(mcp: FastMCP) -> None:
 
     @mcp.tool(annotations=ToolAnnotations(readOnlyHint=True))
     async def get_contact(
-        contact_id: Annotated[int, Field(description="The Freshdesk contact ID.")]
+        contact_id: Annotated[int, Field(description="The Freshdesk contact ID.")],
     ) -> dict:
         """Get full details of a single Freshdesk contact by ID.
 
@@ -53,7 +53,9 @@ def register(mcp: FastMCP) -> None:
     async def create_contact(
         name: Annotated[str, Field(description="Full name of the contact.")],
         email: Annotated[str, Field(description="Email address of the contact.")],
-        phone: Annotated[Optional[str], Field(description="Optional landline phone number.")] = None,
+        phone: Annotated[
+            Optional[str], Field(description="Optional landline phone number.")
+        ] = None,
         mobile: Annotated[Optional[str], Field(description="Optional mobile phone number.")] = None,
         company_id: Annotated[
             Optional[int], Field(description="Optional company ID association.")
@@ -85,9 +87,13 @@ def register(mcp: FastMCP) -> None:
     async def update_contact(
         contact_id: Annotated[int, Field(description="The Freshdesk contact ID to update.")],
         name: Annotated[Optional[str], Field(description="Optional updated full name.")] = None,
-        email: Annotated[Optional[str], Field(description="Optional updated email address.")] = None,
+        email: Annotated[
+            Optional[str], Field(description="Optional updated email address.")
+        ] = None,
         phone: Annotated[Optional[str], Field(description="Optional updated phone number.")] = None,
-        mobile: Annotated[Optional[str], Field(description="Optional updated mobile number.")] = None,
+        mobile: Annotated[
+            Optional[str], Field(description="Optional updated mobile number.")
+        ] = None,
         company_id: Annotated[
             Optional[int], Field(description="Optional updated company ID association.")
         ] = None,
@@ -126,7 +132,7 @@ def register(mcp: FastMCP) -> None:
 
     @mcp.tool(annotations=ToolAnnotations(destructiveHint=True, idempotentHint=True))
     async def delete_contact(
-        contact_id: Annotated[int, Field(description="The Freshdesk contact ID to soft-delete.")]
+        contact_id: Annotated[int, Field(description="The Freshdesk contact ID to soft-delete.")],
     ) -> dict:
         """Delete (soft-delete) a Freshdesk contact by ID. Moves contact to deleted state.
 
@@ -141,8 +147,11 @@ def register(mcp: FastMCP) -> None:
     @mcp.tool(annotations=ToolAnnotations(readOnlyHint=True))
     async def search_contacts(
         query: Annotated[
-            str, Field(description="Contact search query string (e.g. 'name:John' or 'email:john@example.com').")
-        ]
+            str,
+            Field(
+                description="Contact search query string (e.g. 'name:John' or 'email:john@example.com')."
+            ),
+        ],
     ) -> list[dict]:
         """Search contacts using Freshdesk search query syntax.
 
@@ -160,4 +169,3 @@ def register(mcp: FastMCP) -> None:
             )
         results = data.get("results", data) if isinstance(data, dict) else data
         return cast(list[dict], results)
-
