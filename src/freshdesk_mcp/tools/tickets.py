@@ -1,5 +1,7 @@
-from typing import Any, Optional, cast
+from typing import Annotated, Any, Optional, cast
+from pydantic import Field
 from mcp.server.fastmcp import FastMCP
+from mcp.types import ToolAnnotations
 
 from freshdesk_mcp import client
 
@@ -7,16 +9,27 @@ from freshdesk_mcp import client
 def register(mcp: FastMCP) -> None:
     """Register ticket management tools."""
 
-    @mcp.tool()
+    @mcp.tool(annotations=ToolAnnotations(readOnlyHint=True))
     async def list_tickets(
-        page: int = 1,
-        per_page: int = 30,
-        status: Optional[str] = None,
-        priority: Optional[str] = None,
-        order_by: str = "created_at",
-        order_type: str = "desc",
+        page: Annotated[int, Field(description="Page number (1-indexed).")] = 1,
+        per_page: Annotated[int, Field(description="Results per page (max 100).")] = 30,
+        status: Annotated[
+            Optional[str],
+            Field(description="Filter by status: 'open', 'pending', 'resolved', or 'closed'."),
+        ] = None,
+        priority: Annotated[
+            Optional[str],
+            Field(description="Filter by priority: 'low', 'medium', 'high', or 'urgent'."),
+        ] = None,
+        order_by: Annotated[
+            str, Field(description="Field to sort by (e.g. 'created_at', 'updated_at', 'priority').")
+        ] = "created_at",
+        order_type: Annotated[str, Field(description="Sort order: 'asc' or 'desc'.")] = "desc",
     ) -> list[dict]:
-        """List Freshdesk tickets, with optional filters.
+        """List Freshdesk tickets sequentially with optional filters.
+
+        Use when browsing or listing tickets. To search by specific criteria or keywords,
+        use search_tickets instead. To inspect full details of a specific ticket, use get_ticket.
 
         Args:
             page: Page number (1-indexed).
@@ -47,9 +60,17 @@ def register(mcp: FastMCP) -> None:
             data = client._handle_response(await c.get("/tickets", params=params))
         return [client._simplify_ticket(t) for t in data]
 
-    @mcp.tool()
-    async def get_ticket(ticket_id: int, include_conversations: bool = False) -> dict:
+    @mcp.tool(annotations=ToolAnnotations(readOnlyHint=True))
+    async def get_ticket(
+        ticket_id: Annotated[int, Field(description="The Freshdesk ticket ID.")],
+        include_conversations: Annotated[
+            bool, Field(description="If true, include ticket conversation thread.")
+        ] = False,
+    ) -> dict:
         """Get full details of a single ticket by ID.
+
+        Use when inspecting a specific ticket by ID. To browse multiple tickets,
+        use list_tickets or search_tickets instead.
 
         Args:
             ticket_id: The Freshdesk ticket ID.
@@ -66,9 +87,16 @@ def register(mcp: FastMCP) -> None:
                 ticket["conversations"] = convos
         return ticket
 
-    @mcp.tool()
-    async def search_tickets(query: str) -> list[dict]:
+    @mcp.tool(annotations=ToolAnnotations(readOnlyHint=True))
+    async def search_tickets(
+        query: Annotated[
+            str, Field(description="Freshdesk search query string (e.g. 'priority:3 AND status:2').")
+        ]
+    ) -> list[dict]:
         """Search tickets using Freshdesk's query syntax.
+
+        Use when querying tickets by specific conditional rules (e.g. priority, status, subject).
+        To browse recent tickets sequentially, use list_tickets instead.
 
         Args:
             query: A Freshdesk search query, e.g.
@@ -84,19 +112,38 @@ def register(mcp: FastMCP) -> None:
         results = data.get("results", data) if isinstance(data, dict) else data
         return [client._simplify_ticket(t) for t in results]
 
-    @mcp.tool()
+    @mcp.tool(annotations=ToolAnnotations(destructiveHint=False, idempotentHint=False))
     async def create_ticket(
-        subject: str,
-        description: str,
-        email: str,
-        priority: str = "medium",
-        status: str = "open",
-        source: str = "portal",
-        tags: Optional[list[str]] = None,
-        group_id: Optional[int] = None,
-        responder_id: Optional[int] = None,
+        subject: Annotated[str, Field(description="Ticket subject line.")],
+        description: Annotated[
+            str, Field(description="Ticket body/description (HTML or plain text).")
+        ],
+        email: Annotated[str, Field(description="Email address of the requester (customer).")],
+        priority: Annotated[
+            str, Field(description="Priority: 'low', 'medium', 'high', or 'urgent'.")
+        ] = "medium",
+        status: Annotated[
+            str, Field(description="Status: 'open', 'pending', 'resolved', or 'closed'.")
+        ] = "open",
+        source: Annotated[
+            str,
+            Field(
+                description="Source: 'email', 'portal', 'phone', 'chat', 'feedback_widget', or 'outbound_email'."
+            ),
+        ] = "portal",
+        tags: Annotated[
+            Optional[list[str]], Field(description="Optional list of tag strings.")
+        ] = None,
+        group_id: Annotated[
+            Optional[int], Field(description="Optional group ID to assign the ticket to.")
+        ] = None,
+        responder_id: Annotated[
+            Optional[int], Field(description="Optional agent ID to assign the ticket to.")
+        ] = None,
     ) -> dict:
         """Create a new Freshdesk ticket.
+
+        Use when creating new support tickets. To update an existing ticket, use update_ticket instead.
 
         Args:
             subject: Ticket subject line.
@@ -137,17 +184,31 @@ def register(mcp: FastMCP) -> None:
         async with client._client() as c:
             return cast(dict, client._handle_response(await c.post("/tickets", json=payload)))
 
-    @mcp.tool()
+    @mcp.tool(annotations=ToolAnnotations(destructiveHint=False, idempotentHint=True))
     async def update_ticket(
-        ticket_id: int,
-        status: Optional[str] = None,
-        priority: Optional[str] = None,
-        subject: Optional[str] = None,
-        tags: Optional[list[str]] = None,
-        responder_id: Optional[int] = None,
-        group_id: Optional[int] = None,
+        ticket_id: Annotated[int, Field(description="The Freshdesk ticket ID to update.")],
+        status: Annotated[
+            Optional[str],
+            Field(description="Optional new status: 'open', 'pending', 'resolved', 'closed'."),
+        ] = None,
+        priority: Annotated[
+            Optional[str],
+            Field(description="Optional new priority: 'low', 'medium', 'high', 'urgent'."),
+        ] = None,
+        subject: Annotated[Optional[str], Field(description="Optional new subject line.")] = None,
+        tags: Annotated[
+            Optional[list[str]], Field(description="Optional new list of tags (replaces existing).")
+        ] = None,
+        responder_id: Annotated[
+            Optional[int], Field(description="Optional agent ID to (re)assign ticket to.")
+        ] = None,
+        group_id: Annotated[
+            Optional[int], Field(description="Optional group ID to (re)assign ticket to.")
+        ] = None,
     ) -> dict:
         """Update fields on an existing ticket. Only provided fields are changed.
+
+        Use when updating fields of an existing ticket. To create a new ticket, use create_ticket.
 
         Args:
             ticket_id: The Freshdesk ticket ID to update.
@@ -186,15 +247,27 @@ def register(mcp: FastMCP) -> None:
                 dict, client._handle_response(await c.put(f"/tickets/{ticket_id}", json=payload))
             )
 
-    @mcp.tool()
-    async def delete_ticket(ticket_id: int) -> dict:
-        """Delete (soft-delete) a ticket by ID. Freshdesk moves it to the trash."""
+    @mcp.tool(annotations=ToolAnnotations(destructiveHint=True, idempotentHint=True))
+    async def delete_ticket(
+        ticket_id: Annotated[int, Field(description="The Freshdesk ticket ID to soft-delete.")]
+    ) -> dict:
+        """Delete (soft-delete) a ticket by ID. Freshdesk moves it to the trash.
+
+        Operation is reversible via restore_ticket. To close a ticket without deleting, use update_ticket(status='closed').
+
+        Args:
+            ticket_id: The Freshdesk ticket ID to delete.
+        """
         async with client._client() as c:
             return cast(dict, client._handle_response(await c.delete(f"/tickets/{ticket_id}")))
 
-    @mcp.tool()
-    async def restore_ticket(ticket_id: int) -> dict:
+    @mcp.tool(annotations=ToolAnnotations(destructiveHint=False, idempotentHint=True))
+    async def restore_ticket(
+        ticket_id: Annotated[int, Field(description="The Freshdesk ticket ID to restore.")]
+    ) -> dict:
         """Restore a soft-deleted ticket from the trash.
+
+        Use to recover soft-deleted tickets from trash. To browse active tickets, use list_tickets.
 
         Args:
             ticket_id: The Freshdesk ticket ID to restore.
@@ -202,9 +275,14 @@ def register(mcp: FastMCP) -> None:
         async with client._client() as c:
             return cast(dict, client._handle_response(await c.put(f"/tickets/{ticket_id}/restore")))
 
-    @mcp.tool()
-    async def add_reply(ticket_id: int, body: str) -> dict:
+    @mcp.tool(annotations=ToolAnnotations(destructiveHint=False, idempotentHint=False))
+    async def add_reply(
+        ticket_id: Annotated[int, Field(description="The Freshdesk ticket ID.")],
+        body: Annotated[str, Field(description="Reply body content (HTML or plain text).")],
+    ) -> dict:
         """Add a public reply to a ticket (visible to the customer).
+
+        Use when communicating updates directly to the customer. For internal team notes, use add_private_note instead.
 
         Args:
             ticket_id: The Freshdesk ticket ID.
@@ -218,11 +296,17 @@ def register(mcp: FastMCP) -> None:
                 ),
             )
 
-    @mcp.tool()
+    @mcp.tool(annotations=ToolAnnotations(destructiveHint=False, idempotentHint=False))
     async def add_private_note(
-        ticket_id: int, body: str, notify_agent_ids: Optional[list[int]] = None
+        ticket_id: Annotated[int, Field(description="The Freshdesk ticket ID.")],
+        body: Annotated[str, Field(description="Note body content (HTML or plain text).")],
+        notify_agent_ids: Annotated[
+            Optional[list[int]], Field(description="Optional list of agent IDs to notify.")
+        ] = None,
     ) -> dict:
         """Add a private/internal note to a ticket (not visible to the customer).
+
+        Use for internal agent collaboration and internal documentation. For customer-visible replies, use add_reply.
 
         Args:
             ticket_id: The Freshdesk ticket ID.
@@ -238,8 +322,12 @@ def register(mcp: FastMCP) -> None:
                 client._handle_response(await c.post(f"/tickets/{ticket_id}/notes", json=payload)),
             )
 
-    @mcp.tool()
+    @mcp.tool(annotations=ToolAnnotations(readOnlyHint=True))
     async def get_ticket_fields() -> list[dict]:
-        """Fetch ticket form fields metadata including custom fields and dropdown choices."""
+        """Fetch ticket form fields metadata including custom fields and dropdown choices.
+
+        Use to inspect field options and valid dropdown values before creating or updating tickets.
+        """
         async with client._client() as c:
             return cast(list[dict], client._handle_response(await c.get("/ticket_fields")))
+
