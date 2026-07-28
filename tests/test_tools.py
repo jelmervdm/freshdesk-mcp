@@ -41,6 +41,8 @@ list_solution_folders = mcp._tool_manager._tools["list_solution_folders"].fn
 list_solution_articles = mcp._tool_manager._tools["list_solution_articles"].fn
 get_solution_article = mcp._tool_manager._tools["get_solution_article"].fn
 search_solution_articles = mcp._tool_manager._tools["search_solution_articles"].fn
+raw_api_request = mcp._tool_manager._tools["raw_api_request"].fn
+
 
 
 async def test_list_tickets(mock_httpx_client):
@@ -360,3 +362,47 @@ async def test_list_agents_and_groups(mock_httpx_client):
 
     groups = await list_groups()
     assert len(groups) == 1
+
+
+async def test_raw_api_request(mock_httpx_client):
+    """Test raw_api_request supports HTTP methods, endpoint path normalization, params, and body payload."""
+    mock_response = MagicMock()
+    mock_response.status_code = 200
+    mock_response.json.return_value = [{"id": 1, "name": "Custom Field"}]
+    mock_httpx_client.request.return_value = mock_response
+
+    # Test GET request with path normalization and params
+    res = await raw_api_request("get", "/api/v2/custom_objects", params={"page": 1})
+    assert res == [{"id": 1, "name": "Custom Field"}]
+    mock_httpx_client.request.assert_called_once_with(
+        method="GET",
+        url="/custom_objects",
+        params={"page": 1},
+        json=None,
+    )
+    mock_httpx_client.request.reset_mock()
+
+    # Test POST request with body payload and path without leading slash
+    mock_response.status_code = 201
+    mock_response.json.return_value = {"id": 10, "status": "created"}
+    res_post = await raw_api_request("POST", "custom_objects", data={"name": "New Object"})
+    assert res_post == {"id": 10, "status": "created"}
+    mock_httpx_client.request.assert_called_once_with(
+        method="POST",
+        url="/custom_objects",
+        params=None,
+        json={"name": "New Object"},
+    )
+    mock_httpx_client.request.reset_mock()
+
+    # Test DELETE request
+    mock_response.status_code = 204
+    mock_response.content = b""
+    res_del = await raw_api_request("DELETE", "/tickets/123")
+    assert res_del == {"success": True}
+
+    # Test invalid method raises ValueError
+    with pytest.raises(ValueError) as exc_info:
+        await raw_api_request("INVALID_METHOD", "/tickets")
+    assert "Invalid HTTP method 'INVALID_METHOD'" in str(exc_info.value)
+

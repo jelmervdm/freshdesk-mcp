@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.3.0] - 2026-07-28
+
+### Added
+- Raw REST API v2 access tool (`raw_api_request`) supporting arbitrary HTTP requests (`GET`, `POST`, `PUT`, `DELETE`, `PATCH`), endpoint path normalization, query parameter forwarding, JSON payload handling, and TDQS compliance (`destructiveHint=True`).
+
 ## [0.2.3] - 2026-07-27
 
 ### Changed

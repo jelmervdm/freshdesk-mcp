@@ -6,7 +6,7 @@ from mcp.server.fastmcp import FastMCP, Context
 
 from freshdesk_mcp import resources, prompts
 from freshdesk_mcp.router import get_router
-from freshdesk_mcp.tools import tickets, contacts, agents, companies, time_entries, solutions
+from freshdesk_mcp.tools import tickets, contacts, agents, companies, time_entries, solutions, raw_api
 
 logger = logging.getLogger(__name__)
 
@@ -19,6 +19,7 @@ agents.register(mcp)
 companies.register(mcp)
 time_entries.register(mcp)
 solutions.register(mcp)
+raw_api.register(mcp)
 resources.register(mcp)
 prompts.register(mcp)
 

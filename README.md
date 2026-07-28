@@ -27,6 +27,7 @@ This server is audited against the **[Tool Definition Quality Score (TDQS)](http
 - **Time Tracking**: List, log, update, and delete billable/non-billable time entries on tickets.
 - **Solutions Knowledge Base**: Browse categories, folders, articles, and search knowledge base solutions.
 - **Support Staff (Agents & Groups)**: List agents and ticket assignment groups.
+- **Raw API Access**: Execute arbitrary REST API v2 requests (`raw_api_request`) supporting GET, POST, PUT, DELETE, and PATCH methods with path normalization.
 - **MCP Resources & Prompts**: Dynamic resources (`freshdesk://ticket-fields`, `freshdesk://agents`) and workflow prompt templates (`triage_ticket`, `draft_reply`).
 - **Async HTTP Client**: Non-blocking `httpx.AsyncClient` context for fast, efficient API calls.
 - **Tool Routing**: Enable semantic search routing (`TOOL_ROUTING=true`) to dramatically reduce LLM context usage.
