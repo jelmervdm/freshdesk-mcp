@@ -44,7 +44,6 @@ search_solution_articles = mcp._tool_manager._tools["search_solution_articles"].
 raw_api_request = mcp._tool_manager._tools["raw_api_request"].fn
 
 
-
 async def test_list_tickets(mock_httpx_client):
     """Test list_tickets converts status/priority strings and simplifies response."""
     mock_response = MagicMock()
@@ -405,4 +404,3 @@ async def test_raw_api_request(mock_httpx_client):
     with pytest.raises(ValueError) as exc_info:
         await raw_api_request("INVALID_METHOD", "/tickets")
     assert "Invalid HTTP method 'INVALID_METHOD'" in str(exc_info.value)
-
