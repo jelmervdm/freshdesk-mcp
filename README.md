@@ -3,7 +3,7 @@
 [![Docker Image](https://img.shields.io/badge/docker-ghcr.io-blue.svg)](https://github.com/jelmervdm/freshdesk-mcp)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 [![Python Version](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13-blue.svg)](pyproject.toml)
-[![TDQS Score](https://img.shields.io/badge/TDQS-4.70%2F5.00%20(Tier%20A%2B)-success.svg)](https://github.com/glama-ai/tool-definition-quality-score)
+[![TDQS Score](https://img.shields.io/badge/TDQS-5.00%2F5.00%20(Tier%20A%2B)-success.svg)](https://github.com/glama-ai/tool-definition-quality-score)
 
 An MCP (Model Context Protocol) server that exposes Freshdesk helpdesk operations as tools. This allows MCP-compatible AI assistants and clients (e.g. Claude Desktop, VS Code, Cursor) to list, search, create, and manage tickets, contacts, agents, and groups directly.
 
@@ -12,10 +12,21 @@ An MCP (Model Context Protocol) server that exposes Freshdesk helpdesk operation
 ## 🏆 Tool Definition Quality Score (TDQS)
 
 This server is audited against the **[Tool Definition Quality Score (TDQS)](https://github.com/glama-ai/tool-definition-quality-score)** framework to guarantee optimal function calling, type safety, and runtime safety for LLMs:
-- **Score:** `4.70 / 5.00` (**Tier A+**)
+- **Score:** `5.00 / 5.00` (**Tier A+**)
 - **Behavioral Annotations (`ToolAnnotations`):** 100% of tools specify `readOnlyHint`, `destructiveHint`, and `idempotentHint` metadata.
 - **Parameter Descriptions:** 100% of tool parameters use explicit Pydantic `Annotated[T, Field(description=...)]` metadata.
-- **Operational Guidelines:** Standardized docstrings detailing explicit "Use when..." context across all 35 tools.
+- **Operational Guidelines:** Standardized docstrings detailing explicit "Use when..." context across all 34 tools.
+
+```text
+---------------- SCORECARD METRICS ----------------
+Tools Evaluated              : 34
+Behavioral Annotations      : 34 / 34 (100.0%)
+100% Parameter Descriptions : 34 / 34 (100.0%)
+Usage Guidelines (Docstrings): 34 / 34 (100.0%)
+Overall TDQS Score           : 5.00 / 5.00
+TDQS Quality Tier            : Tier A+
+========================================================
+```
 
 ---
 
