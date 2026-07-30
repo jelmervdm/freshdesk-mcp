@@ -79,6 +79,7 @@ Podman is fully supported on Fedora/RHEL and works as a rootless drop-in replace
         "run",
         "-i",
         "--rm",
+        "--pull=newer",
         "-e", "FRESHDESK_DOMAIN",
         "-e", "FRESHDESK_API_KEY",
         "-e", "TOOL_ROUTING",
