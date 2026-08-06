@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.3.2] - 2026-08-06
+
+### Fixed
+- **Ticket Search API Documentation**: Updated `search_tickets` docstring to explicitly list supported search fields (`agent_id`, `group_id`, `priority`, `status`, `type`, `created_at`, `updated_at`, `due_by`, `company_id`, `tag`) and clarify that `subject`, `description`, and free-text queries are unsupported by Freshdesk's `/api/v2/search/tickets` endpoint (advising client-side filtering via `list_tickets` instead).
+- Updated unit test `test_search_tickets` to query with supported field `tag:billing` instead of `subject:billing`.
+
 ## [0.3.0] - 2026-07-28
 
 ### Added

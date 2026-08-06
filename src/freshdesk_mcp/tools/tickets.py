@@ -97,12 +97,15 @@ def register(mcp: FastMCP) -> None:
     ) -> list[dict]:
         """Search tickets using Freshdesk's query syntax.
 
-        Use when querying tickets by specific conditional rules (e.g. priority, status, subject).
-        To browse recent tickets sequentially, use list_tickets instead.
+        Use when querying tickets by specific conditional rules (e.g. priority, status, type, tag).
+        Note: Freshdesk search API ONLY supports filtering by specific fields: agent_id, group_id,
+        priority, status, type, created_at, updated_at, due_by, company_id, and tag.
+        Searching by 'subject', 'description', or free-text is NOT supported by Freshdesk's search API
+        (use list_tickets to browse tickets and filter by subject client-side instead).
 
         Args:
             query: A Freshdesk search query, e.g.
-                '"priority:3 AND status:2"' or '"subject:'billing issue'"'.
+                '"priority:3 AND status:2"' or '"type:\'Incident\' AND tag:\'billing\'"'.
                 See https://developers.freshdesk.com/api/#filter_tickets for syntax.
                 Do not include surrounding quotes beyond what the syntax needs;
                 this tool will wrap the query for you.

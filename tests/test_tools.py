@@ -341,11 +341,11 @@ async def test_search_tickets(mock_httpx_client):
     mock_response.json.return_value = {"results": [{"id": 1, "subject": "Found"}]}
     mock_httpx_client.get.return_value = mock_response
 
-    res = await search_tickets('"subject:billing"')
+    res = await search_tickets('"tag:billing"')
     assert len(res) == 1
     assert res[0]["subject"] == "Found"
     mock_httpx_client.get.assert_called_once_with(
-        "/search/tickets", params={"query": '"subject:billing"'}
+        "/search/tickets", params={"query": '"tag:billing"'}
     )
 
 
