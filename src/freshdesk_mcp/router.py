@@ -8,8 +8,16 @@ class ToolRouter:
     """Routes user queries to relevant Freshdesk tools via embedding similarity."""
 
     def __init__(self, model_name: str = "BAAI/bge-small-en-v1.5") -> None:
-        from fastembed import TextEmbedding
-        import numpy as np
+        try:
+            from fastembed import TextEmbedding
+            import numpy as np
+        except ImportError:
+            raise ImportError(
+                "The 'fastembed' and 'numpy' packages are required for tool routing. "
+                "Please reinstall/run the server with the 'router' extra: "
+                "e.g., pip install '.[router]' or run via uvx with "
+                "'uvx --from freshdesk-mcp-server[router] @ git+https://github.com/jelmervdm/freshdesk-mcp.git freshdesk-mcp-server'."
+            )
 
         logger.info("Loading embedding model %s ...", model_name)
         cache_dir = os.environ.get("FASTEMBED_CACHE_DIR")

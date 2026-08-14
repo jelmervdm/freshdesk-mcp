@@ -118,7 +118,21 @@ If you prefer to run directly from source without containers:
 }
 ```
 
-**Via `python` (editable install `pip install -e .`):**
+> **Note on Tool Routing**: If enabling `"TOOL_ROUTING": "true"`, you must run the server with the `router` extra to install necessary dependencies (`fastembed` and `numpy`). Update the `args` array to:
+> `["--directory", "/path/to/freshdesk-mcp", "run", "--extra", "router", "freshdesk-mcp-server"]`
+
+**Via `python` (editable install):**
+
+First install the package locally:
+```bash
+# Standard installation
+pip install -e .
+
+# Or if enabling tool routing:
+pip install -e ".[router]"
+```
+
+Then configure the server:
 ```json
 {
   "mcpServers": {
@@ -151,6 +165,9 @@ If you prefer to run directly from source without containers:
   }
 }
 ```
+
+> **Note on Tool Routing**: If enabling `"TOOL_ROUTING": "true"`, you must fetch the package with the `[router]` extra. Update the `args` array to:
+> `["--from", "freshdesk-mcp-server[router] @ git+https://github.com/jelmervdm/freshdesk-mcp.git", "freshdesk-mcp-server"]`
 
 ---
 
