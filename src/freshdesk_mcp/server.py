@@ -6,7 +6,15 @@ from mcp.server.fastmcp import FastMCP, Context
 
 from freshdesk_mcp import resources, prompts
 from freshdesk_mcp.router import get_router
-from freshdesk_mcp.tools import tickets, contacts, agents, companies, time_entries, solutions, raw_api
+from freshdesk_mcp.tools import (
+    tickets,
+    contacts,
+    agents,
+    companies,
+    time_entries,
+    solutions,
+    raw_api,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -97,7 +105,19 @@ def route_tools(query: str) -> str:
     if not _is_routed_mode():
         return "Tool routing is not enabled. All tools are already visible."
 
-    _ensure_router_indexed()
+    try:
+        _ensure_router_indexed()
+    except ImportError as e:
+        logger.error("Failed to initialize tool router: %s", e)
+        return (
+            f"Error: {e}\n\n"
+            "To enable tool routing, you must install the server with the 'router' optional dependencies.\n"
+            "If you are configuring this server in Claude Desktop, use one of the following commands:\n\n"
+            "1. Via uvx directly:\n"
+            '   uvx --from "freshdesk-mcp-server[router] @ git+https://github.com/jelmervdm/freshdesk-mcp.git" freshdesk-mcp-server\n\n'
+            "2. Via uv run in a local repository clone:\n"
+            "   uv run --extra router freshdesk-mcp-server"
+        )
 
     router = get_router()
     if router is None:

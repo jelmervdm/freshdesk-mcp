@@ -77,16 +77,26 @@ def evaluate_tdqs() -> None:
     pct_param = (tools_with_100pct_param_descs / total_tools) * 100
     pct_usage = (tools_with_usage_guidelines / total_tools) * 100
 
-    score = ((pct_anno / 100) * 1.5 + (pct_param / 100) * 2.0 + (pct_usage / 100) * 1.5)
+    score = (pct_anno / 100) * 1.5 + (pct_param / 100) * 2.0 + (pct_usage / 100) * 1.5
 
     print("\n---------------- SCORECARD METRICS ----------------")
     print(f"Tools Evaluated              : {total_tools}")
-    print(f"Behavioral Annotations      : {tools_with_annotations} / {total_tools} ({pct_anno:.1f}%)")
-    print(f"100% Parameter Descriptions : {tools_with_100pct_param_descs} / {total_tools} ({pct_param:.1f}%)")
-    print(f"Usage Guidelines (Docstrings): {tools_with_usage_guidelines} / {total_tools} ({pct_usage:.1f}%)")
+    print(
+        f"Behavioral Annotations      : {tools_with_annotations} / {total_tools} ({pct_anno:.1f}%)"
+    )
+    print(
+        f"100% Parameter Descriptions : {tools_with_100pct_param_descs} / {total_tools} ({pct_param:.1f}%)"
+    )
+    print(
+        f"Usage Guidelines (Docstrings): {tools_with_usage_guidelines} / {total_tools} ({pct_usage:.1f}%)"
+    )
     print(f"Overall TDQS Score           : {score:.2f} / 5.00")
 
-    tier = "Tier A+" if score >= 4.8 else ("Tier A" if score >= 4.5 else ("Tier B" if score >= 4.0 else "Tier C"))
+    tier = (
+        "Tier A+"
+        if score >= 4.8
+        else ("Tier A" if score >= 4.5 else ("Tier B" if score >= 4.0 else "Tier C"))
+    )
     print(f"TDQS Quality Tier            : {tier}")
     print("========================================================")
 

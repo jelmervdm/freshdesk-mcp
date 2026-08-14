@@ -11,7 +11,9 @@ VALID_METHODS = {"GET", "POST", "PUT", "DELETE", "PATCH"}
 def register(mcp: FastMCP) -> None:
     """Register raw API access tools."""
 
-    @mcp.tool(annotations=ToolAnnotations(destructiveHint=True, readOnlyHint=False, idempotentHint=False))
+    @mcp.tool(
+        annotations=ToolAnnotations(destructiveHint=True, readOnlyHint=False, idempotentHint=False)
+    )
     async def raw_api_request(
         method: Annotated[
             str,
@@ -19,7 +21,9 @@ def register(mcp: FastMCP) -> None:
         ],
         endpoint: Annotated[
             str,
-            Field(description="API endpoint path relative to /api/v2 (e.g. '/tickets/123', 'contacts')."),
+            Field(
+                description="API endpoint path relative to /api/v2 (e.g. '/tickets/123', 'contacts')."
+            ),
         ],
         params: Annotated[
             Optional[dict[str, Any]],
@@ -27,7 +31,9 @@ def register(mcp: FastMCP) -> None:
         ] = None,
         data: Annotated[
             Optional[Any],
-            Field(description="Optional request JSON body (object, array, string, number, or boolean)."),
+            Field(
+                description="Optional request JSON body (object, array, string, number, or boolean)."
+            ),
         ] = None,
     ) -> Any:
         """Execute a raw HTTP request directly against the Freshdesk REST API v2.

@@ -128,3 +128,35 @@ async def test_call_routed_tool_when_enabled():
 
         res_always_visible = await call_routed_tool("route_tools")
         assert "Cannot call 'route_tools' through this tool" in res_always_visible
+
+
+def test_route_tools_missing_fastembed():
+    """Verify route_tools behavior when fastembed is not installed."""
+    import os
+    from unittest.mock import patch
+    from freshdesk_mcp.server import route_tools
+
+    with (
+        patch.dict(os.environ, {"TOOL_ROUTING": "true"}),
+        patch(
+            "freshdesk_mcp.server.get_router",
+            side_effect=ImportError("The 'fastembed' and 'numpy' packages are required"),
+        ),
+    ):
+        res = route_tools("list tickets")
+        assert "Error: The 'fastembed' and 'numpy' packages are required" in res
+        assert "To enable tool routing, you must install" in res
+
+
+def test_tool_router_missing_fastembed():
+    """Verify ToolRouter raises ImportError when fastembed/numpy are not available."""
+    import sys
+    from unittest.mock import patch
+    import pytest
+
+    with patch.dict(sys.modules, {"fastembed": None}):
+        from freshdesk_mcp.router import ToolRouter
+
+        with pytest.raises(ImportError) as excinfo:
+            ToolRouter()
+        assert "The 'fastembed' and 'numpy' packages are required" in str(excinfo.value)
