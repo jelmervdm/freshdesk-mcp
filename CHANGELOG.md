@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.3.3] - 2026-08-14
+
+### Added
+- **Graceful Error Handling for Missing Router Dependencies**: The server now catches `ImportError` when `TOOL_ROUTING=true` but the optional `[router]` dependencies (`fastembed` and `numpy`) are not installed. It returns a clear, helpful error message guiding the user to reinstall/run the server with the correct extra dependencies.
+- Updated installation and integration instructions in `README.md` to detail configuring `uv`/`uvx` and local installs with the `[router]` extra.
+- Regression tests to verify error messaging and exception safety when optional dependencies are absent.
+
 ## [0.3.2] - 2026-08-06
 
 ### Fixed
