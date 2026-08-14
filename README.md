@@ -97,9 +97,49 @@ Podman is fully supported on Fedora/RHEL and works as a rootless drop-in replace
 
 > **Tip for Docker vs Podman**: Simply replace `"command": "podman"` with `"command": "docker"` if using standard Docker or the `podman-docker` alias. Always use `-i` (interactive stdin) and **never** `-t` (TTY), as TTY mode appends carriage returns (`\r\n`) that disrupt JSON-RPC communication over stdio.
 
-#### Option 2: Local Python execution (without PyPI)
+#### Option 2: Python / `uv` execution
 
-If you prefer to run directly from source without containers:
+If you prefer to run directly from source or via `uv` without containers:
+
+**Via `uvx` (from PyPI):**
+```json
+{
+  "mcpServers": {
+    "freshdesk": {
+      "command": "uvx",
+      "args": ["freshdesk-mcp-server"],
+      "env": {
+        "FRESHDESK_DOMAIN": "yourcompany",
+        "FRESHDESK_API_KEY": "your_api_key_here",
+        "TOOL_ROUTING": "false"
+      }
+    }
+  }
+}
+```
+
+> **Note on Tool Routing**: If enabling `"TOOL_ROUTING": "true"`, specify the `[router]` extra in `args`:
+> `["--from", "freshdesk-mcp-server[router]", "freshdesk-mcp-server"]`
+
+**Via `uvx` (directly from GitHub repository):**
+```json
+{
+  "mcpServers": {
+    "freshdesk": {
+      "command": "uvx",
+      "args": ["--from", "git+https://github.com/jelmervdm/freshdesk-mcp.git", "freshdesk-mcp-server"],
+      "env": {
+        "FRESHDESK_DOMAIN": "yourcompany",
+        "FRESHDESK_API_KEY": "your_api_key_here",
+        "TOOL_ROUTING": "false"
+      }
+    }
+  }
+}
+```
+
+> **Note on Tool Routing**: If enabling `"TOOL_ROUTING": "true"`, fetch the package with the `[router]` extra. Update the `args` array to:
+> `["--from", "freshdesk-mcp-server[router] @ git+https://github.com/jelmervdm/freshdesk-mcp.git", "freshdesk-mcp-server"]`
 
 **Via `uv` (local workspace directory):**
 ```json
@@ -118,18 +158,22 @@ If you prefer to run directly from source without containers:
 }
 ```
 
-> **Note on Tool Routing**: If enabling `"TOOL_ROUTING": "true"`, you must run the server with the `router` extra to install necessary dependencies (`fastembed` and `numpy`). Update the `args` array to:
+> **Note on Tool Routing**: If enabling `"TOOL_ROUTING": "true"`, run with `--extra router`:
 > `["--directory", "/path/to/freshdesk-mcp", "run", "--extra", "router", "freshdesk-mcp-server"]`
 
-**Via `python` (editable install):**
+**Via `pip` / `uv tool` (editable or global install):**
 
-First install the package locally:
+Install locally:
 ```bash
 # Standard installation
 pip install -e .
+# Or via uv tool:
+uv tool install freshdesk-mcp-server
 
-# Or if enabling tool routing:
+# With tool routing enabled (fastembed & numpy):
 pip install -e ".[router]"
+# Or via uv tool:
+uv tool install "freshdesk-mcp-server[router]"
 ```
 
 Then configure the server:
@@ -137,8 +181,7 @@ Then configure the server:
 {
   "mcpServers": {
     "freshdesk": {
-      "command": "python",
-      "args": ["-m", "freshdesk_mcp.server"],
+      "command": "freshdesk-mcp-server",
       "env": {
         "FRESHDESK_DOMAIN": "yourcompany",
         "FRESHDESK_API_KEY": "your_api_key_here",
@@ -148,26 +191,6 @@ Then configure the server:
   }
 }
 ```
-
-**Via `uvx` directly from GitHub repository:**
-```json
-{
-  "mcpServers": {
-    "freshdesk": {
-      "command": "uvx",
-      "args": ["--from", "git+https://github.com/jelmervdm/freshdesk-mcp.git", "freshdesk-mcp-server"],
-      "env": {
-        "FRESHDESK_DOMAIN": "yourcompany",
-        "FRESHDESK_API_KEY": "your_api_key_here",
-        "TOOL_ROUTING": "false"
-      }
-    }
-  }
-}
-```
-
-> **Note on Tool Routing**: If enabling `"TOOL_ROUTING": "true"`, you must fetch the package with the `[router]` extra. Update the `args` array to:
-> `["--from", "freshdesk-mcp-server[router] @ git+https://github.com/jelmervdm/freshdesk-mcp.git", "freshdesk-mcp-server"]`
 
 ---
 
@@ -180,6 +203,21 @@ When enabled, only 2 tools are exposed to the LLM:
 2. `call_routed_tool` - Invoke one of the discovered/activated tools.
 
 This uses a local CPU embedding model (`fastembed` with `BAAI/bge-small-en-v1.5`) to perform similarity search in 5-10ms.
+
+### Router Dependencies & Environment Setup
+
+Semantic tool routing requires optional dependencies (`fastembed` and `numpy`). Ensure your setup installs these dependencies:
+
+| Environment | Command / Configuration |
+|---|---|
+| **Docker / Podman** | Pre-installed in the container image out of the box. |
+| **`uvx` (PyPI)** | `"args": ["--from", "freshdesk-mcp-server[router]", "freshdesk-mcp-server"]` |
+| **`uvx` (GitHub)** | `"args": ["--from", "freshdesk-mcp-server[router] @ git+https://github.com/jelmervdm/freshdesk-mcp.git", "freshdesk-mcp-server"]` |
+| **`uv run` (Local Workspace)** | `uv run --extra router freshdesk-mcp-server` |
+| **`uv tool install`** | `uv tool install "freshdesk-mcp-server[router]"` |
+| **`pip`** | `pip install ".[router]"` or `pip install "freshdesk-mcp-server[router]"` |
+
+If `TOOL_ROUTING=true` is set without the `[router]` extra installed, `route_tools` will safely return a descriptive error message guiding the user to reinstall with the `router` extra.
 
 ---
 
